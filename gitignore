@@ -1,0 +1,87 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Ambientes virtuais
+venv/
+env/
+.venv/
+
+# Arquivos de teste/cache
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+
+# =========================
+# Sistema operacional
+# =========================
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+
+# =========================
+# Logs locais
+# =========================
+
+logs/*.log
+*.log
+
+
+# =========================
+# Relatorios gerados
+# =========================
+
+
+
+
+# =========================
+# Backups gerados
+# =========================
+
+
+
+
+# =========================
+# Arquivos temporarios
+# =========================
+
+*.tmp
+*.temp
+*.bak
+*.old
+
+
+# =========================
+# Dados sensiveis
+# =========================
+
+.env
+*.key
+*.pem
+*.crt
+*.password
+secrets.json
+
+
+# =========================
+# Users locais
+# =========================
+
+
+
+
+# =========================
+# Blockchain
+# =========================
