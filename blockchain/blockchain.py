@@ -1,213 +1,207 @@
-#!/usr/bin/env python3
 import json
 import hashlib
+import argparse
 from datetime import datetime
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-CHAIN_PATH = BASE_DIR / "chain.json"
+CHAIN_FILE = BASE_DIR / "chain.json"
 
 
+def calcular_hash(bloco):
+    """
+    Calcula o hash SHA-256 do bloco.
+    O campo hash_atual não entra no cálculo, porque ele é o resultado final.
+    """
+    bloco_para_hash = bloco.copy()
+    bloco_para_hash.pop("hash_atual", None)
 
-class Blockchain:
-    def __init__(self):
-        self.chain = self.carregar_chain()
+    bloco_json = json.dumps(
+        bloco_para_hash,
+        sort_keys=True,
+        ensure_ascii=False
+    ).encode("utf-8")
 
-        if not self.chain:
-            self.criar_bloco_genesis()
-
-    def carregar_chain(self):
-
-        # carrega a blockchain salva no arquivo chain.json
-
-        if not CHAIN_PATH.exists():
-            return []
-
-        try:
-            with open(CHAIN_PATH, "r", encoding="utf-8") as arquivo:
-                return json.load(arquivo)
-        except json.JSONDecodeError:
-            print("erro: chain.json ta corrompido ou em formato invalido")
-            return []
-        except Exception as erro:
-            print(f"erro ao carregar blockchain: {erro}")
-            return []
-
-    def salvar_chain(self):
-
-        # salva a blockchain no arquivo chain.json
-
-        with open(CHAIN_PATH, "w", encoding="utf-8") as arquivo:
-            json.dump(self.chain, arquivo, indent=4, ensure_ascii=False)
-
-    def calcular_hash(self, bloco):
-
-        # calcula o hash SHA-256 de um bloco
-
-        bloco_copia = bloco.copy()
-        bloco_copia.pop("hash_atual", None)
-
-        bloco_json = json.dumps(
-            bloco_copia,
-            sort_keys=True,
-            ensure_ascii=False
-        )
-
-        return hashlib.sha256(bloco_json.encode("utf-8")).hexdigest()
-
-    def criar_bloco_genesis(self):
-        # cria o primeiro bloco da cadeia
-
-        bloco = {
-            "id": 0,
-            "timestamp": datetime.now().isoformat(),
-            "evento": "bloco genesis criado",
-            "hash_anterior": "0"
-        }
-
-        bloco["hash_atual"] = self.calcular_hash(bloco)
-
-        self.chain.append(bloco)
-        self.salvar_chain()
-
-    def adicionar_bloco(self, evento):
-        # adiciona um novo bloco na blockchain
-
-        ultimo_bloco = self.chain[-1]
-
-        novo_bloco = {
-            "id": len(self.chain),
-            "timestamp": datetime.now().isoformat(),
-            "evento": evento,
-            "hash_anterior": ultimo_bloco["hash_atual"]
-        }
-
-        novo_bloco["hash_atual"] = self.calcular_hash(novo_bloco)
-
-        self.chain.append(novo_bloco)
-        self.salvar_chain()
-
-        print("bloco adicionado")
-        print(f"evento registrado: {evento}")
+    return hashlib.sha256(bloco_json).hexdigest()
 
 
-    def validar_integridade(self):
+def carregar_chain():
+    """
+    Carrega a blockchain do arquivo chain.json.
+    Se o arquivo não existir, retorna lista vazia.
+    """
+    if not CHAIN_FILE.exists():
+        return []
 
-        # valida a integridade da blockchain
+    try:
+        with open(CHAIN_FILE, "r", encoding="utf-8") as arquivo:
+            conteudo = arquivo.read().strip()
 
-        print("\nvalidando a blockchain..\n")
+            if not conteudo:
+                return []
 
-        if not self.chain:
-            print("alerta: blockchain vazia")
+            return json.loads(conteudo)
+
+    except json.JSONDecodeError:
+        print("ALERTA: chain.json está corrompido ou com formato inválido.")
+        return []
+
+
+def salvar_chain(chain):
+    """
+    Salva a blockchain no arquivo chain.json.
+    """
+    with open(CHAIN_FILE, "w", encoding="utf-8") as arquivo:
+        json.dump(chain, arquivo, indent=4, ensure_ascii=False)
+
+
+def criar_bloco_genese():
+    """
+    Cria o primeiro bloco da blockchain.
+    """
+    bloco = {
+        "id": 0,
+        "timestamp": datetime.now().isoformat(),
+        "evento": "Bloco gênese criado",
+        "hash_anterior": "0",
+        "hash_atual": ""
+    }
+
+    bloco["hash_atual"] = calcular_hash(bloco)
+    return bloco
+
+
+def garantir_chain_inicializada():
+    """
+    Garante que a blockchain tenha pelo menos o bloco gênese.
+    """
+    chain = carregar_chain()
+
+    if len(chain) == 0:
+        bloco_genese = criar_bloco_genese()
+        chain.append(bloco_genese)
+        salvar_chain(chain)
+
+    return chain
+
+
+def adicionar_evento(evento):
+    """
+    Adiciona um novo evento como bloco na blockchain.
+    """
+    chain = garantir_chain_inicializada()
+
+    ultimo_bloco = chain[-1]
+
+    novo_bloco = {
+        "id": ultimo_bloco["id"] + 1,
+        "timestamp": datetime.now().isoformat(),
+        "evento": evento,
+        "hash_anterior": ultimo_bloco["hash_atual"],
+        "hash_atual": ""
+    }
+
+    novo_bloco["hash_atual"] = calcular_hash(novo_bloco)
+
+    chain.append(novo_bloco)
+    salvar_chain(chain)
+
+    print("Evento registrado na blockchain com sucesso.")
+    print(f"ID do bloco: {novo_bloco['id']}")
+    print(f"Evento: {novo_bloco['evento']}")
+    print(f"Hash atual: {novo_bloco['hash_atual']}")
+
+
+def validar_chain():
+    """
+    Valida a integridade da blockchain.
+    Verifica:
+    1. Se o hash atual de cada bloco está correto.
+    2. Se o hash_anterior aponta para o hash_atual do bloco anterior.
+    """
+    chain = carregar_chain()
+
+    if len(chain) == 0:
+        print("Blockchain vazia.")
+        return False
+
+    for i, bloco in enumerate(chain):
+        hash_recalculado = calcular_hash(bloco)
+
+        if bloco["hash_atual"] != hash_recalculado:
+            print("ALERTA: blockchain corrompida.")
+            print(f"Bloco com problema: {bloco['id']}")
+            print(f"Hash armazenado:   {bloco['hash_atual']}")
+            print(f"Hash recalculado:  {hash_recalculado}")
             return False
 
-        campos_obrigatorios = [
-            "id",
-            "timestamp",
-            "evento",
-            "hash_anterior",
-            "hash_atual"
-        ]
+        if i > 0:
+            bloco_anterior = chain[i - 1]
 
-        cadeia_valida = True
+            if bloco["hash_anterior"] != bloco_anterior["hash_atual"]:
+                print("ALERTA: quebra de encadeamento detectada.")
+                print(f"Bloco com problema: {bloco['id']}")
+                print(f"Hash anterior esperado: {bloco_anterior['hash_atual']}")
+                print(f"Hash anterior encontrado: {bloco['hash_anterior']}")
+                return False
 
-        for indice, bloco in enumerate(self.chain):
-            print(f"validando bloco {indice}...")
+    print("Blockchain íntegra. Nenhuma adulteração detectada.")
+    return True
 
-            for campo in campos_obrigatorios:
-                if campo not in bloco:
-                    print("ALERTA DE INTEGRIDADE")
-                    print(f"bloco corrompido: {indice}")
-                    print(f"campo obrigatorio ausente: {campo}\n")
-                    cadeia_valida = False
-                    continue
 
-            if not all(campo in bloco for campo in campos_obrigatorios):
-                continue
+def listar_blocos():
+    """
+    Lista todos os blocos da blockchain.
+    """
+    chain = carregar_chain()
 
-            hash_recalculado = self.calcular_hash(bloco)
+    if len(chain) == 0:
+        print("Blockchain vazia.")
+        return
 
-            if bloco["hash_atual"] != hash_recalculado:
-                print("ALERTA DE INTEGRIDADE")
-                print(f"bloco corrompido: {indice}")
-                print("motivo: hash armazenado diferente do hash recalculado")
-                print(f"hash armazenado:   {bloco['hash_atual']}")
-                print(f"hash recalculado:  {hash_recalculado}\n")
-                cadeia_valida = False
+    for bloco in chain:
+        print("-" * 60)
+        print(f"ID: {bloco['id']}")
+        print(f"Data/Hora: {bloco['timestamp']}")
+        print(f"Evento: {bloco['evento']}")
+        print(f"Hash anterior: {bloco['hash_anterior']}")
+        print(f"Hash atual: {bloco['hash_atual']}")
 
-            if bloco["id"] != indice:
-                print("ALERTA DE INTEGRIDADE")
-                print(f"bloco corrompido: {indice}")
-                print("motivo: ID do bloco fora da sequencia esperada")
-                print(f"ID encontrado: {bloco['id']}")
-                print(f"ID esperado:   {indice}\n")
-                cadeia_valida = False
 
-            if indice == 0:
-                if bloco["hash_anterior"] != "0":
-                    print("ALERTA DE INTEGRIDADE")
-                    print("bloco genesis corrompido.")
-                    print("motivo: hash_anterior do bloco genesis deveria ser '0'\n")
-                    cadeia_valida = False
-            else:
-                bloco_anterior = self.chain[indice - 1]
+def main():
+    parser = argparse.ArgumentParser(
+        description="Blockchain de auditoria do SecureChain Audit"
+    )
 
-                if bloco["hash_anterior"] != bloco_anterior.get("hash_atual"):
-                    print("ALERTA DE ENCADEAMENTO")
-                    print(f"bloco corrompido: {indice}")
-                    print("motivo: hash_anterior não corresponde ao hash_atual do bloco anterior")
-                    print(f"hash anterior salvo no bloco atual: {bloco['hash_anterior']}")
-                    print(f"hash atual do bloco anterior:       {bloco_anterior.get('hash_atual')}\n")
-                    cadeia_valida = False
+    subparsers = parser.add_subparsers(dest="comando")
 
-        if cadeia_valida:
-            print("blockchain valida. nenhuma adulteracao encontrada.")
-        else:
-            print("blockchain invalida. encontrado inconsistencias.")
+    parser_add = subparsers.add_parser("add", help="Adicionar evento na blockchain")
+    parser_add.add_argument("evento", help="Descrição do evento")
 
-        return cadeia_valida
+    subparsers.add_parser("validate", help="Validar integridade da blockchain")
+    subparsers.add_parser("list", help="Listar blocos da blockchain")
+    subparsers.add_parser("init", help="Inicializar blockchain com bloco gênese")
 
-    def listar_blocos(self):
+    args = parser.parse_args()
 
-        #  exibe todos os blocos da blockchain
-        for bloco in self.chain:
-            print(json.dumps(bloco, indent=4, ensure_ascii=False))
+    if args.comando == "add":
+        adicionar_evento(args.evento)
+
+    elif args.comando == "validate":
+        validar_chain()
+
+    elif args.comando == "list":
+        listar_blocos()
+
+    elif args.comando == "init":
+        garantir_chain_inicializada()
+        print("Blockchain inicializada com sucesso.")
+
+    else:
+        parser.print_help()
 
 
 if __name__ == "__main__":
-    blockchain = Blockchain()
+    main()
 
-    while True:
-        print("\n===== SecureChain Audit - blockchain =====")
-        print("1. adicionar bloco de teste")
-        print("2. listar blocos")
-        print("3. validar integridade da blockchain")
-        print("0. sair")
-
-        opcao = input("escolha uma opcao: ").strip()
-
-        if opcao == "1":
-            evento = input("digite o evento: ").strip()
-
-            if evento:
-                blockchain.adicionar_bloco(evento)
-            else:
-                print("evento nao pode ser vazio.")
-
-        elif opcao == "2":
-            blockchain.listar_blocos()
-
-        elif opcao == "3":
-            blockchain.validar_integridade()
-
-        elif opcao == "0":
-            print("encerrando...")
-            break
-
-        else:
-            print("opcao invalida.")
-
-            # ------------------
-            # python3 blockchain/blockchain.py
-            # 
