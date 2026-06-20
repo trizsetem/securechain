@@ -139,7 +139,7 @@ def menu():
     criar_estrutura()
 
     while True:
-        print("\n=== Módulo I.4 - Integridade de Arquivos ===")
+        print("\n=== SecureChain Audit - Integridade de Arquivos ===")
         print("1 - Criar base inicial de hashes")
         print("2 - Verificar integridade dos documentos")
         print("0 - Sair")
