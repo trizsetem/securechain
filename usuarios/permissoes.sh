@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# deve ser modificado de acordo com a localização do projeto no sistema
 PROJETO="/home/administrador/securechain"
 
 /usr/sbin/groupadd -f securechain_admin
