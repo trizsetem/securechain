@@ -1,0 +1,47 @@
+[
+    {
+        "nome": "lisa",
+        "perfil": "analista",
+        "salt": "9f7357d2e2770e1a400b9a6937d70304",
+        "senha_hash": "2f212e1e76ff6f6f0d5a58b53f11fbe50f6f00f0e0c5fc1dc110ee112fa9484e",
+        "criado_em": "2026-06-20T16:29:37.032062"
+    },
+    {
+        "nome": "teste",
+        "perfil": "administrador",
+        "salt": "ca765d870126c271715df2c72595d233",
+        "senha_hash": "ae15d8dbb22580fa73fd9d474facaee931d4fae1443c600f4090a8f98eb46c7e",
+        "criado_em": "2026-06-20T16:34:19.042971"
+    },
+    {
+        "nome": "yuna",
+        "perfil": "administrador",
+        "salt": "58e7f17421c9bbb3cef23bb191e86b0f",
+        "senha_hash": "0dd518a0cd9516f1da7f4bf6c126a4f922d44f0b8a2a255eb888ac3d96a42b08",
+        "criado_em": "2026-06-20T16:36:07.412334"
+    },
+    {
+        "nome": "priscila",
+        "perfil": "administrador",
+        "grupo_linux": "securechain_admin",
+        "salt": "9c0233e82add75b603193bf4096f92a9",
+        "senha_hash": "0d1742771bf857516ffa3205a70f88c66b8fe86f5baf7f65e0a6e6e41042691a",
+        "criado_em": "2026-06-20T17:43:18.588146"
+    },
+    {
+        "nome": "heloisa",
+        "perfil": "visitante",
+        "grupo_linux": "securechain_visitante",
+        "salt": "59bacfa2f6599f3d5ac92d254c37dbc0",
+        "senha_hash": "98ac562ef1b4cc0dd84ec925e67ecd72df302a5db5d8d2b1eb2a97b59d9a1cd4",
+        "criado_em": "2026-06-20T17:44:43.123125"
+    },
+    {
+        "nome": "travis",
+        "perfil": "administrador",
+        "grupo_linux": "securechain_admin",
+        "salt": "d61d58fa8bbf719d25d252d69db60075",
+        "senha_hash": "38a73c7694277856fed6461892fc73d005cbe3d8d0661539148e564c4cfbe3ff",
+        "criado_em": "2026-06-20T20:56:05.873897"
+    }
+]
