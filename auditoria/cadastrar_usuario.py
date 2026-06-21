@@ -83,8 +83,18 @@ def criar_usuario_linux(nome, perfil):
     if existe.returncode != 0:
         subprocess.run(["/usr/sbin/useradd", "-m", "-s", "/bin/bash", nome], check=True)
 
-    subprocess.run(["/usr/sbin/usermod", "-aG", grupo, nome], check=True)
-
+    # grupo do SecureChain
+    subprocess.run(
+      ["/usr/sbin/usermod", "-aG", grupo, nome],
+      check=True
+    )
+    
+    # administradores também entram no grupo sudo
+    if perfil == "administrador":
+      subprocess.run(
+          ["/usr/sbin/usermod", "-aG", "sudo", nome],
+          check=True
+      )
 
 def cadastrar_usuario():
     usuarios = carregar_usuarios()
