@@ -6,8 +6,8 @@ import secrets
 from datetime import datetime
 
 # melhorada segurança de acesso aos diretórios
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_FILE = os.path.join(BASE_DIR, "usuarios", "users.json")
 SESSION_FILE = os.path.join(BASE_DIR, "usuarios", "session.json")
 CHAIN_FILE = os.path.join(BASE_DIR, "blockchain", "chain.json")
@@ -82,68 +82,6 @@ def registrar_evento_blockchain(evento):
 
     with open(CHAIN_FILE, "w") as f:
         json.dump(cadeia, f, indent=4)
-
-# adicionado modo de cadastro relacionado ao controle pelo linux
-def criar_usuario_linux(nome, perfil):
-    grupo = GRUPOS_LINUX[perfil]
-
-    subprocess.run(["sudo", "groupadd", "-f", grupo], check=False)
-
-    existe = subprocess.run(
-        ["id", nome],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
-    )
-
-    if existe.returncode != 0:
-        subprocess.run(["sudo", "useradd", "-m", "-s", "/bin/bash", nome], check=True)
-
-    subprocess.run(["sudo", "usermod", "-aG", grupo, nome], check=True)
-
-# adicionado o linux também
-def cadastrar_usuario():
-    usuarios = carregar_usuarios()
-
-    nome = input("Nome do usuário Linux/Python: ").strip()
-    senha = input("Senha do sistema Python: ").strip()
-    perfil = input("Perfil [administrador/analista/visitante]: ").strip().lower()
-
-    if perfil not in PERFIS_VALIDOS:
-        print("Perfil inválido.")
-        return
-
-    for usuario in usuarios:
-        if usuario["nome"] == nome:
-            print("Usuário já existe no sistema Python.")
-            return
-
-    try:
-        criar_usuario_linux(nome, perfil)
-    except subprocess.CalledProcessError:
-        print("Erro ao criar usuário Linux. Execute o auth.py com permissão sudo.")
-        registrar_evento_blockchain(f"falha ao criar usuário linux: {nome}")
-        return
-
-    salt, hash_senha = gerar_hash_senha(senha)
-
-    novo_usuario = {
-        "nome": nome,
-        "perfil": perfil,
-        "grupo_linux": GRUPOS_LINUX[perfil],
-        "salt": salt,
-        "senha_hash": hash_senha,
-        "criado_em": datetime.now().isoformat()
-    }
-
-    usuarios.append(novo_usuario)
-    salvar_usuarios(usuarios)
-
-    registrar_evento_blockchain(
-        f"usuário criado: {nome} perfil: {perfil} grupo_linux: {GRUPOS_LINUX[perfil]}"
-    )
-
-    print("Usuário cadastrado com sucesso.")
-    print(f"Usuário Linux criado/adicionado ao grupo: {GRUPOS_LINUX[perfil]}")
 
 
 def login():
@@ -257,18 +195,13 @@ def menu_administrador():
     while True:
         print("\n=== MENU ADMINISTRADOR ===")
         print("1 - Cadastrar usuário")
-        print("2 - Ver sessão")
-        print("3 - Logout")
+        print("2 - Logout")
 
         opcao = input("Escolha: ")
 
         if opcao == "1":
-            cadastrar_usuario()
-
+            subprocess.run(["python3", os.path.join(BASE_DIR, "cadastro_usuario.py")])
         elif opcao == "2":
-            ver_sessao()
-
-        elif opcao == "3":
             logout()
             break
 
