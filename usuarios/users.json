@@ -43,5 +43,21 @@
         "salt": "d61d58fa8bbf719d25d252d69db60075",
         "senha_hash": "38a73c7694277856fed6461892fc73d005cbe3d8d0661539148e564c4cfbe3ff",
         "criado_em": "2026-06-20T20:56:05.873897"
+    },
+    {
+        "nome": "lucas",
+        "perfil": "visitante",
+        "grupo_linux": "securechain_visitante",
+        "salt": "5b3c3af79494d669840fa2988eb7b470",
+        "senha_hash": "f573e9070193e7e8a39c70612a960005dbe454df89329b487ec8d9d1f7debd0d",
+        "criado_em": "2026-06-20T21:32:18.366981"
+    },
+    {
+        "nome": "paulo",
+        "perfil": "analista",
+        "grupo_linux": "securechain_analista",
+        "salt": "b2b047f4dce99c400bf2e2a328e6728a",
+        "senha_hash": "0b73b08decdd9001ef5a331b222a03e5c7dfd0c6c9f5187410820e98a5df7b35",
+        "criado_em": "2026-06-20T21:34:46.098212"
     }
 ]
