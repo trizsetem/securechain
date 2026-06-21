@@ -1,23 +1,23 @@
-import os
-import json
-import hashlib
-import secrets
-import subprocess
-from datetime import datetime
-
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-USERS_FILE = os.path.join(BASE_DIR, "usuarios", "users.json")
-SESSION_FILE = os.path.join(BASE_DIR, "usuarios", "session.json")
-CHAIN_FILE = os.path.join(BASE_DIR, "blockchain", "chain.json")
-
-PERFIS_VALIDOS = ["administrador", "analista", "visitante"]
-
-GRUPOS_LINUX = {
-    "administrador": "securechain_admin",
-    "analista": "securechain_analista",
-    "visitante": "securechain_visitante"
+import os                                                                                                                                                                   
+import json                                                                                                                                                                 
+import hashlib                                                                                                                                                              
+import secrets                                                                                                                                                              
+import subprocess                                                                                                                                                           
+from datetime import datetime                                                                                                                                               
+                                                                                                                                                                            
+                                                                                                                                                                            
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))                                                                                                      
+                                                                                                                                                                            
+USERS_FILE = os.path.join(BASE_DIR, "usuarios", "users.json")                                                                                                               
+SESSION_FILE = os.path.join(BASE_DIR, "usuarios", "session.json")                                                                                                           
+CHAIN_FILE = os.path.join(BASE_DIR, "blockchain", "chain.json")                                                                                                             
+                                                                                                                                                                            
+PERFIS_VALIDOS = ["administrador", "analista", "visitante"]                                                                                                                 
+                                                                                                                                                                            
+GRUPOS_LINUX = {                                                                                                                                                            
+    "administrador": "securechain_admin",                                                                                                                                   
+    "analista": "securechain_analista",                                                                                                                                     
+    "visitante": "securechain_visitante"                                                                                                                                    
 }
 
 
